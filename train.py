@@ -12,7 +12,7 @@ from exceptions import StopTrainingException
 import transforms
 import pandas as pd
 from copy import deepcopy
-from tensorboard_logger import configure, log_value
+# from tensorboard_logger import configure, log_value
 
 EARLY_STOPPING_EPOCHS = 100
 torch.manual_seed(42)
@@ -76,7 +76,7 @@ def train(model,
     dataset = WaveDataset(procesed_data, transforms=[transforms.HorizontalCrop(449),
                                                  transforms.Normalize()])
     dataloader = DataLoader(dataset, batch_size=batch_size,
-                            shuffle=False, num_workers=3)
+                            shuffle=False, num_workers=4)
 
     unimproved_epochs = 0
     best_loss = 1000

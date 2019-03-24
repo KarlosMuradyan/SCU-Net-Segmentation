@@ -25,18 +25,27 @@ class DoubleDownConv(nn.Module):
 
 
 class DoubleUpConv(nn.Module):
-    def __init__(self, input_channel, output_channel):
+    def __init__(self, input_channel, output_channel, include_batch_norm=True):
         super(DoubleUpConv, self).__init__()
+    
+        if include_batch_norm:
+            self.double_conv = nn.Sequential(
+                    nn.Conv2d(input_channel, output_channel, 5, stride=1, padding=2, bias=False),
+                    nn.BatchNorm2d(output_channel),
+                    nn.ReLU(),
 
-        self.double_conv = nn.Sequential(
-                nn.Conv2d(input_channel, output_channel, 5, stride=1, padding=2, bias=False),
-                nn.BatchNorm2d(output_channel),
-                nn.ReLU(),
+                    nn.Conv2d(output_channel, output_channel, 5, stride=1, padding=2, bias=False),
+                    nn.BatchNorm2d(output_channel),
+                    nn.ReLU()
+                    )
+        else:
+            self.double_conv = nn.Sequential(
+                    nn.Conv2d(input_channel, output_channel, 5, stride=1, padding=2, bias=False),
+                    nn.ReLU(),
 
-                nn.Conv2d(output_channel, output_channel, 5, stride=1, padding=2, bias=False),
-                nn.BatchNorm2d(output_channel),
-                nn.ReLU()
-                )
+                    nn.Conv2d(output_channel, output_channel, 5, stride=1, padding=2, bias=False),
+                    nn.ReLU()
+                    )
 
     def forward(self, x):
         x = self.double_conv(x)
@@ -70,11 +79,10 @@ class Generator(nn.Module):
         self.upsample3 = DoubleUpConv(filters*16, filters*4)
         self.upsample2 = DoubleUpConv(filters*8, filters*2)
         self.upsample1 = DoubleUpConv(filters*4, filters)
-        self.upsample0 = DoubleUpConv(filters*2, filters)
+        self.upsample0 = DoubleUpConv(filters*2, filters, include_batch_norm=False)
 
         self.last_conv = nn.Sequential(
             nn.Conv2d(filters, n_classes, 1, 1),
-            nn.Sigmoid()
         )
 
     def forward(self, x):
@@ -106,4 +114,9 @@ class Generator(nn.Module):
         u0 = self.upsample0(u0)
 
         f = self.last_conv(u0)
+        f = torch.sub(f, 2)
+        # f = torch.div(f, 2)
+        f = nn.Sigmoid().forward(f)
+        c = torch.Tensor([6])
+        f = torch.mul(f, c)
         return f
