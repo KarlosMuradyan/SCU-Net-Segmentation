@@ -1,6 +1,7 @@
 import json
 import os
 
+import random
 import torch
 from icecream import ic
 from torch import nn
@@ -82,6 +83,8 @@ def train(model,
     best_loss = 1000
     best_model_dict = None
 
+    mask_norm = transforms.Normalize_Mask(minv=0, maxv=6)
+
     for e in range(epochs):
         try:
             print('Starting Epoch', str(e) + '/' + str(epochs))
@@ -90,14 +93,17 @@ def train(model,
                 # TODO change source hardcoding, handle unequal size of mix and source
                 normalized_mix = lst[0].float().to(device)
                 original_mix = lst[1].float().to(device)
-                source1 = lst[2].float().to(device)
+                true_mask = lst[2].long().to(device)
 
                 optimizer.zero_grad()
                 mask = model.forward(normalized_mix)
                 mask = mask.squeeze(0).squeeze(1)
-                out = mask * original_mix
+                # out = mask * original_mix
+                
 
-                loss = criterion(out, source1)
+                ic(mask.shape)
+                ic(true_mask.shape)
+                loss = criterion(mask, true_mask)
                 loss.backward()
                 optimizer.step()
                 epoch_full_loss += loss.item()

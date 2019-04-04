@@ -85,6 +85,9 @@ class Generator(nn.Module):
             nn.Conv2d(filters, n_classes, 1, 1),
         )
 
+        # self.fin_rel = nn.ReLU()
+        self.fin_rel = nn.Sigmoid()
+
     def forward(self, x):
         x = x.unsqueeze(1)
 
@@ -114,9 +117,18 @@ class Generator(nn.Module):
         u0 = self.upsample0(u0)
 
         f = self.last_conv(u0)
-        f = torch.sub(f, 2)
-        # f = torch.div(f, 2)
-        f = nn.Sigmoid().forward(f)
-        c = torch.Tensor([6])
-        f = torch.mul(f, c)
+        # f = torch.sub(f, 2)
+        # # f = torch.div(f, 2)
+        # f = nn.Sigmoid().forward(f)
+        # c = torch.Tensor([6])
+        # f = torch.mul(f, c)
+
+        # f = self.fin_rel(f)
+        # # f = torch.sub(f, 3)
+        # # f = torch.div(f, 2)
+        # f = nn.Sigmoid().forward(f)
+        # f = torch.sub(f, 0.5)
+        # c = torch.Tensor([25])
+        # f = torch.mul(f, c)
+
         return f

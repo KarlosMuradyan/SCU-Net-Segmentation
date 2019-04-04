@@ -11,7 +11,7 @@ import argparse
 import train
 from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
-
+from torch.nn import MSELoss, CrossEntropyLoss
 from model.SCUNet import Generator
 from torch.optim.lr_scheduler import StepLR
 from pickle import UnpicklingError
@@ -58,7 +58,7 @@ def main():
         prepare_dataset(args['data_path'], initial_data, args['out_dir'], args['processed_csv_dir'])
     elif args['mode'] == 'train':
         # Defining model
-        model = Generator(1)
+        model = Generator(2, filters=16)
 
         # If pre-trained weights are specified, load them:
         if args['pretrained_model']:
@@ -72,6 +72,7 @@ def main():
         train.train(model,
                     args['data_path'],
                     scheduler=StepLR,
+                    criterion=CrossEntropyLoss(),
                     gpu=args['gpu'],
                     epochs=args['epochs'],
                     lr=args['lr'],
@@ -81,7 +82,7 @@ def main():
                     log_name=args['log_name'],
                     train_info_file=args['train_info_file'])
 
-def prepare_dataset(data_path, dataset_csv, path_to_save='./numpy_data', processed_csv_path='./processed_dataset.csv'):
+def prepare_dataset(data_path, dataset_csv, path_to_save='./numpy_data_2', processed_csv_path='./processed_dataset_larger.csv'):
     print('Starting preparing dataset...')
     if not os.path.exists(path_to_save):
         os.makedirs(path_to_save)
@@ -95,7 +96,7 @@ def prepare_dataset(data_path, dataset_csv, path_to_save='./numpy_data', process
             filename = os.path.splitext(filename_with_ext)[0]
 
             inp, sr = librosa.load(data_path + p)
-            inp = librosa.resample(inp, sr, 8192)
+            # inp = librosa.resample(inp, sr, 8192)
             ft_inp = librosa.stft(inp, n_fft=1024, hop_length=768, window='hann', center=True)
 
             np_file_path = os.path.join(path_to_save, (filename + '.h5'))
