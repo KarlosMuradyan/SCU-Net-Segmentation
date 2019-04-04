@@ -1,6 +1,6 @@
 import json
 import os
-
+from logger import IoU
 import random
 import torch
 from icecream import ic
@@ -87,6 +87,7 @@ def train(model,
 
     for e in range(epochs):
         try:
+            iou_logger = IoU(num_classes=2)
             print('Starting Epoch', str(e) + '/' + str(epochs))
             epoch_full_loss = 0
             for n_track, lst in enumerate(tqdm(dataloader)):
@@ -99,7 +100,10 @@ def train(model,
                 mask = model.forward(normalized_mix)
                 mask = mask.squeeze(0).squeeze(1)
                 # out = mask * original_mix
-                
+
+                # TODO TODO check
+                cmask = torch.argmax(mask, dim=1)
+                iou_logger.add(cmask, true_mask)
 
                 ic(mask.shape)
                 ic(true_mask.shape)
@@ -115,6 +119,8 @@ def train(model,
             if log_dir and log_name:
                 log_value('Training Epoch Loss', epoch_mean_loss)
             print('Epoch completed, Loss is: ', epoch_mean_loss)
+            print('Epoch IoU is: ', iou_logger.value())
+
 
             # Early Stopping
             if epoch_mean_loss > best_loss:

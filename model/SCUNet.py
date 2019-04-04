@@ -53,11 +53,11 @@ class DoubleUpConv(nn.Module):
 
 
 class Generator(nn.Module):
-    def __init__(self, n_classes, filters=32):
+    def __init__(self, n_classes, n_initial_channels=1, filters=32):
         super(Generator, self).__init__()
 
         self.first_layer = nn.Sequential(
-            nn.Conv2d(1, filters, 5, 1, 2, bias=False),
+            nn.Conv2d(n_initial_channels, filters, 5, 1, 2, bias=False),
             nn.BatchNorm2d(filters),
             nn.ReLU(),
 
