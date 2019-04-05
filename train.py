@@ -105,8 +105,6 @@ def train(model,
                 cmask = torch.argmax(mask, dim=1)
                 iou_logger.add(cmask, true_mask)
 
-                ic(mask.shape)
-                ic(true_mask.shape)
                 loss = criterion(mask, true_mask)
                 loss.backward()
                 optimizer.step()
