@@ -48,6 +48,8 @@ class WaveDataset(Dataset):
         true_mask = mel_specs[-1] / (mel_specs[-2] + 0.001)
         true_mask[true_mask>=0.5] = 1
         true_mask[true_mask<0.5] = 0
+        true_mask = torch.Tensor(true_mask)
         mel_specs[-1] = true_mask
         
+
         return mel_specs

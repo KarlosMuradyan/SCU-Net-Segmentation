@@ -94,7 +94,7 @@ def train(model,
                 # TODO change source hardcoding, handle unequal size of mix and source
                 normalized_mix = lst[0].float().to(device)
                 original_mix = lst[1].float().to(device)
-                true_mask = lst[2].long().to(device)
+                true_mask = lst[-1].long().to(device)
 
                 optimizer.zero_grad()
                 mask = model.forward(normalized_mix)
