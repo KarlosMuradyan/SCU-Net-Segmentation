@@ -86,7 +86,7 @@ class Generator(nn.Module):
         )
 
         # self.fin_rel = nn.ReLU()
-        self.fin_rel = nn.Sigmoid()
+        self.fin_sigm = nn.Sigmoid()
 
     def forward(self, x):
         x = x.unsqueeze(1)
@@ -117,6 +117,7 @@ class Generator(nn.Module):
         u0 = self.upsample0(u0)
 
         f = self.last_conv(u0)
+        f = self.fin_sigm(f)
         # f = torch.sub(f, 2)
         # # f = torch.div(f, 2)
         # f = nn.Sigmoid().forward(f)

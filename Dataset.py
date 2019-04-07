@@ -11,6 +11,7 @@ import torch
 class WaveDataset(Dataset):
     def __init__(self, dataframe, transforms=None):
         self.dataframe = dataframe
+        self.dataframe = self.dataframe[['mix', 'vocals']]
         self.transforms = transforms
         # self.norm = Normalize_Mask(minv=0, maxv=6)
 
@@ -25,8 +26,6 @@ class WaveDataset(Dataset):
             with h5py.File(p, 'r') as hf:
                 data = hf['dataset'][:]
             mlc, phase = librosa.magphase(data)
-            # mlc = skimage.transform.resize(mlc, (512,512), anti_aliasing=True)
-            # mlc = librosa.amplitude_to_db(mlc)
             #TODO find better way to handle even shape
             if mlc.shape[1]%2 == 0:
                 mlc = mlc[:, :-1]
@@ -36,13 +35,6 @@ class WaveDataset(Dataset):
         if self.transforms:
             for tr in self.transforms:
                 mel_specs = tr(mel_specs)
-
-        # Normalization!!
-        # assert(len(mel_specs)>1)
-        # true_mask = mel_specs[-1] / (mel_specs[-2] + 0.001)
-        # true_mask[true_mask>6] = 6 - random.random()/2
-        # true_mask = self.norm(true_mask)
-        # mel_specs[-1] = true_mask
 
         assert(len(mel_specs)>1)
         true_mask = mel_specs[-1] / (mel_specs[-2] + 0.001)

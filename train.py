@@ -71,13 +71,13 @@ def train(model,
                'log_name': log_name}
 
     criterion = criterion if criterion else nn.L1Loss()
-    scheduler = scheduler(optimizer, step_size=100, gamma=0.999) if scheduler else None
+    scheduler = scheduler(optimizer, step_size=20, gamma=0.5) if scheduler else None
 
     procesed_data = pd.read_csv(csv_path)
     dataset = WaveDataset(procesed_data, transforms=[transforms.HorizontalCrop(449),
                                                  transforms.Normalize()])
     dataloader = DataLoader(dataset, batch_size=batch_size,
-                            shuffle=False, num_workers=4)
+                            shuffle=False, num_workers=6)
 
     unimproved_epochs = 0
     best_loss = 1000
